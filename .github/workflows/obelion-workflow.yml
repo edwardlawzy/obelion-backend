@@ -1,0 +1,49 @@
+name: Backend CI/CD (Laravel)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    env:
+      HOST_IP: ${{ secrets.BACKEND_SERVER_IP }}
+      HOST_USER: ubuntu
+      APP_DIR: /var/www/html/obelion-backend
+      
+    steps:
+      - name: 1. Deployment via SSH to Backend Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.HOST_IP }}
+          username: ${{ env.HOST_USER }}
+          key: ${{ secrets.BACKEND_SSH_KEY }}
+          script: |
+            echo "Starting Laravel Deployment script..."
+            
+            cd ${{ env.APP_DIR }}
+
+            cp .env ../.env
+            
+            # a- pull the new changes
+            echo "Pulling new changes from Git..."
+            sudo git pull origin master
+
+            mv ../.env .env
+            
+            # Run Composer install to update dependencies
+            sudo composer install --no-interaction --prefer-dist --optimize-autoloader
+            
+            # Clear caches and optimize
+            sudo php artisan config:clear
+            sudo php artisan cache:clear
+            
+            # run "php artisan migrate" to apply schema changes
+            echo "Running database migrations..."
+            # NOTE: --force is often required in production environments
+            sudo php artisan migrate --force
+            
+            echo "Laravel Deployment and Migration Complete."
