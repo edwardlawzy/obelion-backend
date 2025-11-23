@@ -40,6 +40,6 @@ jobs:
             # run "php artisan migrate" to apply schema changes
             echo "Running database migrations..."
             # NOTE: --force is often required in production environments
-            sudo php artisan migrate --force
+            sudo php artisan migrate
             
             echo "Laravel Deployment and Migration Complete."
