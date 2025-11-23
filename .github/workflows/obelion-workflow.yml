@@ -2,7 +2,7 @@ name: Backend CI/CD (Laravel)
 
 on:
   push:
-    branches: ["master"]
+    branches: ["12.x"]
 
 jobs:
   deploy:
